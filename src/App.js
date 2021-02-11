@@ -4,6 +4,7 @@ import { Navbar,Button} from 'react-bootstrap';
 
 import Dropdown from './components/Dropdown'
 import Table from './components/Table'
+import Spinner from './components/Spinner'
 import './App.css';
 
 
@@ -11,11 +12,12 @@ function App() {
 
   const [currencies, setCurrencies] = useState([])
   const [exchangeRates, setExchangeRates] = useState({})
-  const [base,setBase] = useState('')
-
+  const [base, setBase] = useState('')
+  const [loading,setLoading] = useState(false)
+ 
   const getCurrencies = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/getCurrencies')
+      const response = await axios.get('https://dry-eyrie-51816.herokuapp.com/getCurrencies')
       setCurrencies(response.data.data)
     } catch (error) {
       console.log(error.message)
@@ -24,12 +26,13 @@ function App() {
 
   const getExchangeRates = async (value) => {
     try {
-      console.log(value)
+      setLoading(true)
       const symbols = "&symbols=INR,AUD,CAD,JPY" 
       let baseUrl = `https://api.exchangeratesapi.io/latest?base=${base}`
       if(value) baseUrl = baseUrl + symbols
       const response = await axios.get(baseUrl)
       setExchangeRates(response.data)
+      setLoading(false)
     } catch (error) {
       console.log(error.message)
     }
@@ -43,6 +46,8 @@ function App() {
     getCurrencies()
   }, [])
 
+  const table = loading ? <Spinner /> : <Table rates={exchangeRates} />
+
   return (
     <div className="App">
       <Navbar bg="dark" variant="dark">
@@ -54,7 +59,7 @@ function App() {
       <Dropdown title="Select Country" currencies={currencies} clicked={setBaseCurrency} />
       <Button onClick={() => getExchangeRates(true)} variant="dark" style={{ margin: '30px', }}>Exchange Rates of listed currencies</Button>
       <Button onClick={() => getExchangeRates(false)} variant="dark" style={{ margin: '30px' }}>Exchange Rates of all currencies</Button>
-      {exchangeRates.hasOwnProperty('base') ? <Table rates={exchangeRates} /> : null}
+      {exchangeRates.hasOwnProperty('base') ? table : null}
     </div>
 
   );

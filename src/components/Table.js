@@ -2,7 +2,6 @@ import { Table } from 'react-bootstrap';
 
 
 const TableList = ({ rates }) => {
-    console.log(rates.rates)
     const exchangeRates = rates.rates
     const rows = Object.keys(exchangeRates).map((keyName, i) => {
         return (
